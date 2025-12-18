@@ -29,12 +29,12 @@ public class CampaignController {
         return ResponseEntity.ok(campaignService.updateCampaign(id, campaign));
     }
 
-    @GET("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Campaign> getById(@PathVariable Long id) {
         return ResponseEntity.ok(campaignService.getCampaignById(id));
     }
 
-    @GET("/")
+    @GetMapping("/")
     public ResponseEntity<List<Campaign>> getAll() {
         return ResponseEntity.ok(campaignService.getAllCampaigns());
     }

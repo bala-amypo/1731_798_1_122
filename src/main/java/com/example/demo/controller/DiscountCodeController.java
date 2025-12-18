@@ -29,17 +29,17 @@ public class DiscountCodeController {
         return ResponseEntity.ok(discountCodeService.updateDiscountCode(id, code));
     }
 
-    @GET("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<DiscountCode> getById(@PathVariable Long id) {
         return ResponseEntity.ok(discountCodeService.getCodeById(id));
     }
 
-    @GET("/influencer/{influencerId}")
+    @GetMapping("/influencer/{influencerId}")
     public ResponseEntity<List<DiscountCode>> getByInfluencer(@PathVariable Long influencerId) {
         return ResponseEntity.ok(discountCodeService.getCodesByInfluencer(influencerId));
     }
 
-    @GET("/campaign/{campaignId}")
+    @GetMapping("/campaign/{campaignId}")
     public ResponseEntity<List<DiscountCode>> getByCampaign(@PathVariable Long campaignId) {
         return ResponseEntity.ok(discountCodeService.getCodesByCampaign(campaignId));
     }

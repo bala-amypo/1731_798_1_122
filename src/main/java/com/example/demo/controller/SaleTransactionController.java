@@ -24,22 +24,22 @@ public class SaleTransactionController {
         return ResponseEntity.ok(saleTransactionService.logTransaction(transaction));
     }
 
-    @GET("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<SaleTransaction> getById(@PathVariable Long id) {
         return ResponseEntity.ok(saleTransactionService.getTransactionById(id));
     }
 
-    @GET("/code/{codeId}")
+    @GetMapping("/code/{codeId}")
     public ResponseEntity<List<SaleTransaction>> getByCode(@PathVariable Long codeId) {
         return ResponseEntity.ok(saleTransactionService.getSalesForCode(codeId));
     }
 
-    @GET("/influencer/{influencerId}")
+    @GetMapping("/influencer/{influencerId}")
     public ResponseEntity<List<SaleTransaction>> getByInfluencer(@PathVariable Long influencerId) {
         return ResponseEntity.ok(saleTransactionService.getSalesForInfluencer(influencerId));
     }
 
-    @GET("/campaign/{campaignId}")
+    @GetMapping("/campaign/{campaignId}")
     public ResponseEntity<List<SaleTransaction>> getByCampaign(@PathVariable Long campaignId) {
         return ResponseEntity.ok(saleTransactionService.getSalesForCampaign(campaignId));
     }

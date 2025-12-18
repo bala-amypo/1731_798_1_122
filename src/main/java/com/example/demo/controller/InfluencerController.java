@@ -29,12 +29,12 @@ public class InfluencerController {
         return ResponseEntity.ok(influencerService.updateInfluencer(id, influencer));
     }
 
-    @GET("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Influencer> getById(@PathVariable Long id) {
         return ResponseEntity.ok(influencerService.getInfluencerById(id));
     }
 
-    @GET("/")
+    @GetMapping("/")
     public ResponseEntity<List<Influencer>> getAll() {
         return ResponseEntity.ok(influencerService.getAllInfluencers());
     }

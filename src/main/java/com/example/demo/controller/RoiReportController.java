@@ -24,17 +24,17 @@ public class RoiReportController {
         return ResponseEntity.ok(roiService.generateRoiForCode(codeId));
     }
 
-    @GET("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<RoiReport> getById(@PathVariable Long id) {
         return ResponseEntity.ok(roiService.getReportById(id));
     }
 
-    @GET("/influencer/{influencerId}")
+    @GetMapping("/influencer/{influencerId}")
     public ResponseEntity<List<RoiReport>> getByInfluencer(@PathVariable Long influencerId) {
         return ResponseEntity.ok(roiService.getReportsForInfluencer(influencerId));
     }
 
-    @GET("/campaign/{campaignId}")
+    @GetMapping("/campaign/{campaignId}")
     public ResponseEntity<List<RoiReport>> getByCampaign(@PathVariable Long campaignId) {
         return ResponseEntity.ok(roiService.getReportsForCampaign(campaignId));
     }
