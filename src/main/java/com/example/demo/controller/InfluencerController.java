@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Influencer;
 import com.example.demo.service.InfluencerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,28 +19,29 @@ public class InfluencerController {
         this.influencerService = influencerService;
     }
 
-    @PostMapping
-    public Influencer create(@RequestBody Influencer influencer) {
-        return influencerService.createInfluencer(influencer);
+    @PostMapping("/")
+    public ResponseEntity<Influencer> create(@RequestBody Influencer influencer) {
+        return ResponseEntity.ok(influencerService.createInfluencer(influencer));
     }
 
     @PutMapping("/{id}")
-    public Influencer update(@PathVariable Long id, @RequestBody Influencer influencer) {
-        return influencerService.updateInfluencer(id, influencer);
+    public ResponseEntity<Influencer> update(@PathVariable Long id, @RequestBody Influencer influencer) {
+        return ResponseEntity.ok(influencerService.updateInfluencer(id, influencer));
     }
 
-    @GetMapping("/{id}")
-    public Influencer getById(@PathVariable Long id) {
-        return influencerService.getInfluencerById(id);
+    @GET("/{id}")
+    public ResponseEntity<Influencer> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(influencerService.getInfluencerById(id));
     }
 
-    @GetMapping
-    public List<Influencer> getAll() {
-        return influencerService.getAllInfluencers();
+    @GET("/")
+    public ResponseEntity<List<Influencer>> getAll() {
+        return ResponseEntity.ok(influencerService.getAllInfluencers());
     }
 
     @PutMapping("/{id}/deactivate")
-    public void deactivate(@PathVariable Long id) {
+    public ResponseEntity<Void> deactivate(@PathVariable Long id) {
         influencerService.deactivateInfluencer(id);
+        return ResponseEntity.ok().build();
     }
 }

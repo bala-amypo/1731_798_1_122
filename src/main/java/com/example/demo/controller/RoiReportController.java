@@ -3,7 +3,10 @@ package com.example.demo.controller;
 import com.example.demo.model.RoiReport;
 import com.example.demo.service.RoiService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/roi")
@@ -17,12 +20,22 @@ public class RoiReportController {
     }
 
     @PostMapping("/generate/{codeId}")
-    public RoiReport generate(@PathVariable Long codeId) {
-        return roiService.generateRoiForCode(codeId);
+    public ResponseEntity<RoiReport> generate(@PathVariable Long codeId) {
+        return ResponseEntity.ok(roiService.generateRoiForCode(codeId));
     }
 
-    @GetMapping("/{id}")
-    public RoiReport getById(@PathVariable Long id) {
-        return roiService.getReportById(id);
+    @GET("/{id}")
+    public ResponseEntity<RoiReport> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(roiService.getReportById(id));
+    }
+
+    @GET("/influencer/{influencerId}")
+    public ResponseEntity<List<RoiReport>> getByInfluencer(@PathVariable Long influencerId) {
+        return ResponseEntity.ok(roiService.getReportsForInfluencer(influencerId));
+    }
+
+    @GET("/campaign/{campaignId}")
+    public ResponseEntity<List<RoiReport>> getByCampaign(@PathVariable Long campaignId) {
+        return ResponseEntity.ok(roiService.getReportsForCampaign(campaignId));
     }
 }
