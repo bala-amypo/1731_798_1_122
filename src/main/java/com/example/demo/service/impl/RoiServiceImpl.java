@@ -37,7 +37,8 @@ public class RoiServiceImpl implements RoiService {
                 .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
 
         // Fetch all sales for the code
-        List<SaleTransaction> transactions = saleTransactionRepository.findByDiscountCodeId(discountCodeId);
+        List<SaleTransaction> transactions = List<SaleTransaction> findByDiscountCode_Id(Long codeId);
+
 
         // Compute totalSales (Sum of transactionAmount)
         BigDecimal totalSales = transactions.stream()
