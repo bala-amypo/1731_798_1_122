@@ -1,47 +1,55 @@
-package com.example.demo.service.impl;
+package com.example.demo.model;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.DiscountCode;
-import com.example.demo.model.SaleTransaction;
-import com.example.demo.repository.DiscountCodeRepository;
-import com.example.demo.repository.SaleTransactionRepository;
-import com.example.demo.service.SaleTransactionService;
-import org.springframework.stereotype.Service;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.List;
 
-@Service
-public class SaleTransactionServiceImpl implements SaleTransactionService {
-    private final SaleTransactionRepository saleTransactionRepository;
-    private final DiscountCodeRepository discountCodeRepository;
+@Entity
+@Table(name = "sale_transactions")
+public class SaleTransaction {
 
-    public SaleTransactionServiceImpl(SaleTransactionRepository saleTransactionRepository, DiscountCodeRepository discountCodeRepository) {
-        this.saleTransactionRepository = saleTransactionRepository;
-        this.discountCodeRepository = discountCodeRepository;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // Requirement 2.4: Many-to-one with DiscountCode
+    @ManyToOne
+    @JoinColumn(name = "discount_code_id")
+    private DiscountCode discountCode;
+
+    // Requirement 2.4: transactionAmount (Must be BigDecimal)
+    private BigDecimal transactionAmount;
+
+    // Requirement 2.4: transactionDate (Timestamp or LocalDateTime)
+    private Timestamp transactionDate;
+
+    // Requirement 2.4: customerId (Identifier for mapping tests)
+    private Long customerId;
+
+    // 1. No-argument constructor
+    public SaleTransaction() {}
+
+    // 2. Parameterized constructor
+    public SaleTransaction(DiscountCode discountCode, BigDecimal transactionAmount, Timestamp transactionDate, Long customerId) {
+        this.discountCode = discountCode;
+        this.transactionAmount = transactionAmount;
+        this.transactionDate = transactionDate;
+        this.customerId = customerId;
     }
 
-    @Override
-    public SaleTransaction logTransaction(SaleTransaction transaction) {
-        if (transaction.getTransactionAmount() == null || transaction.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Transaction amount must be > 0");
-        }
-        DiscountCode code = discountCodeRepository.findById(transaction.getDiscountCode().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
-        
-        if (transaction.getTransactionDate() == null) {
-            transaction.setTransactionDate(new Timestamp(System.currentTimeMillis()));
-        }
-        transaction.setDiscountCode(code);
-        return saleTransactionRepository.save(transaction);
-    }
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    @Override
-    public List<SaleTransaction> getSalesForCode(Long codeId) { return saleTransactionRepository.findByDiscountCodeId(codeId); }
-    @Override
-    public List<SaleTransaction> getSalesForInfluencer(Long id) { return saleTransactionRepository.findByDiscountCodeInfluencerId(id); }
-    @Override
-    public List<SaleTransaction> getSalesForCampaign(Long id) { return saleTransactionRepository.findByDiscountCodeCampaignId(id); }
-    @Override
-    public SaleTransaction getTransactionById(Long id) { return saleTransactionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Sale transaction not found")); }
+    public DiscountCode getDiscountCode() { return discountCode; }
+    public void setDiscountCode(DiscountCode discountCode) { this.discountCode = discountCode; }
+
+    public BigDecimal getTransactionAmount() { return transactionAmount; }
+    public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
+
+    public Timestamp getTransactionDate() { return transactionDate; }
+    public void setTransactionDate(Timestamp transactionDate) { this.transactionDate = transactionDate; }
+
+    public Long getCustomerId() { return customerId; }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
 }
