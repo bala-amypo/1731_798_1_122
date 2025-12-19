@@ -31,18 +31,22 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
         DiscountCode discountCode = discountCodeRepository.findById(transaction.getDiscountCode().getId())
                 .orElseThrow(() -> new RuntimeException("Discount code not found"));
 
-        if (!discountCode.isActive()) {
+        // Check if discount code is active
+        if (!discountCode.getActive()) {
             throw new RuntimeException("Discount code is not active");
         }
 
-        if (!discountCode.getInfluencer().isActive()) {
+        // Check if influencer is active
+        if (!discountCode.getInfluencer().getActive()) {
             throw new RuntimeException("Influencer is not active");
         }
 
-        if (!discountCode.getCampaign().isActive()) {
+        // Check if campaign is active
+        if (!discountCode.getCampaign().getActive()) {
             throw new RuntimeException("Campaign is not active");
         }
 
+        // Validate sale amount
         if (transaction.getSaleAmount() == null || transaction.getSaleAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Sale amount must be positive");
         }
