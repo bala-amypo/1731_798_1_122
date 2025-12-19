@@ -26,8 +26,7 @@ public class SaleTransactionController {
      */
     @PostMapping
     public ResponseEntity<SaleTransaction> createSale(@RequestBody SaleTransaction transaction) {
-        return ResponseEntity.oksaleTransactionService.createSale(transaction);
-
+        return ResponseEntity.ok(saleTransactionService.logTransaction(transaction));
     }
 
     /**
