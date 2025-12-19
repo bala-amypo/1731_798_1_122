@@ -1,55 +1,59 @@
-package com.example.demo.model;
+package com.example.demo.service.impl;
 
-import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
+import com.example.demo.model.DiscountCode;
+import com.example.demo.model.SaleTransaction;
+import com.example.demo.repository.DiscountCodeRepository;
+import com.example.demo.repository.SaleTransactionRepository;
+import com.example.demo.service.SaleTransactionService;
+import com.example.demo.exception.ResourceNotFoundException;
 
-@Entity
-@Table(name = "sale_transactions")
-public class SaleTransaction {
+import java.util.List;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class SaleTransactionServiceImpl implements SaleTransactionService {
 
-    // Requirement 2.4: Many-to-one with DiscountCode
-    @ManyToOne
-    @JoinColumn(name = "discount_code_id")
-    private DiscountCode discountCode;
+    private final SaleTransactionRepository saleTransactionRepository;
+    private final DiscountCodeRepository discountCodeRepository;
 
-    // Requirement 2.4: transactionAmount (Must be BigDecimal)
-    private BigDecimal transactionAmount;
-
-    // Requirement 2.4: transactionDate (Timestamp or LocalDateTime)
-    private Timestamp transactionDate;
-
-    // Requirement 2.4: customerId (Identifier for mapping tests)
-    private Long customerId;
-
-    // 1. No-argument constructor
-    public SaleTransaction() {}
-
-    // 2. Parameterized constructor
-    public SaleTransaction(DiscountCode discountCode, BigDecimal transactionAmount, Timestamp transactionDate, Long customerId) {
-        this.discountCode = discountCode;
-        this.transactionAmount = transactionAmount;
-        this.transactionDate = transactionDate;
-        this.customerId = customerId;
+    public SaleTransactionServiceImpl(
+            SaleTransactionRepository saleTransactionRepository,
+            DiscountCodeRepository discountCodeRepository
+    ) {
+        this.saleTransactionRepository = saleTransactionRepository;
+        this.discountCodeRepository = discountCodeRepository;
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Override
+    public SaleTransaction logTransaction(SaleTransaction transaction) {
+        DiscountCode code = discountCodeRepository.findById(
+                transaction.getDiscountCode().getId()
+        ).orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
 
-    public DiscountCode getDiscountCode() { return discountCode; }
-    public void setDiscountCode(DiscountCode discountCode) { this.discountCode = discountCode; }
+        if (!Boolean.TRUE.equals(code.getActive())) {
+            throw new IllegalStateException("Discount code inactive");
+        }
 
-    public BigDecimal getTransactionAmount() { return transactionAmount; }
-    public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
+        transaction.setDiscountCode(code);
+        return saleTransactionRepository.save(transaction);
+    }
 
-    public Timestamp getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(Timestamp transactionDate) { this.transactionDate = transactionDate; }
+    @Override
+    public SaleTransaction getTransactionById(Long id) {
+        return saleTransactionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+    }
 
-    public Long getCustomerId() { return customerId; }
-    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+    @Override
+    public List<SaleTransaction> getSalesForCode(Long codeId) {
+        return saleTransactionRepository.findByDiscountCode_Id(codeId);
+    }
+
+    @Override
+    public List<SaleTransaction> getSalesForInfluencer(Long influencerId) {
+        return saleTransactionRepository.findByDiscountCode_Influencer_Id(influencerId);
+    }
+
+    @Override
+    public List<SaleTransaction> getSalesForCampaign(Long campaignId) {
+        return saleTransactionRepository.findByDiscountCode_Campaign_Id(campaignId);
+    }
 }

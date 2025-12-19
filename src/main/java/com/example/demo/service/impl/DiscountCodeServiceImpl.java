@@ -1,66 +1,66 @@
-package com.example.demo.model;
+package com.example.demo.service.impl;
 
-import jakarta.persistence.*;
+import com.example.demo.model.DiscountCode;
+import com.example.demo.repository.DiscountCodeRepository;
+import com.example.demo.repository.InfluencerRepository;
+import com.example.demo.repository.SaleTransactionRepository;
+import com.example.demo.service.DiscountCodeService;
+import com.example.demo.exception.ResourceNotFoundException;
+
 import java.util.List;
 
-@Entity
-@Table(name = "discount_codes")
-public class DiscountCode {
+public class DiscountCodeServiceImpl implements DiscountCodeService {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private final DiscountCodeRepository discountCodeRepository;
+    private final InfluencerRepository influencerRepository;
+    private final SaleTransactionRepository saleTransactionRepository;
 
-    // Requirement 2.3: codeValue field
-    private String codeValue;
-
-    // Requirement 2.3: discountPercentage (0 <= value <= 100)
-    private Double discountPercentage;
-
-    private boolean active = true;
-
-    // Relationship: Many discount codes can belong to one Influencer
-    @ManyToOne
-    @JoinColumn(name = "influencer_id")
-    private Influencer influencer;
-
-    // Relationship: Many discount codes can belong to one Campaign
-    @ManyToOne
-    @JoinColumn(name = "campaign_id")
-    private Campaign campaign;
-
-    // Relationship: One discount code can have many sales
-    @OneToMany(mappedBy = "discountCode", cascade = CascadeType.ALL)
-    private List<SaleTransaction> sales;
-
-    // 1. No-argument constructor
-    public DiscountCode() {}
-
-    // 2. Parameterized constructor
-    public DiscountCode(String codeValue, Double discountPercentage) {
-        this.codeValue = codeValue;
-        this.discountPercentage = discountPercentage;
+    // ✅ EXACT constructor order required by tests
+    public DiscountCodeServiceImpl(
+            DiscountCodeRepository discountCodeRepository,
+            InfluencerRepository influencerRepository,
+            SaleTransactionRepository saleTransactionRepository
+    ) {
+        this.discountCodeRepository = discountCodeRepository;
+        this.influencerRepository = influencerRepository;
+        this.saleTransactionRepository = saleTransactionRepository;
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Override
+    public DiscountCode createDiscountCode(DiscountCode code) {
+        return discountCodeRepository.save(code);
+    }
 
-    public String getCodeValue() { return codeValue; }
-    public void setCodeValue(String codeValue) { this.codeValue = codeValue; }
+    @Override
+    public DiscountCode updateDiscountCode(Long id, DiscountCode code) {
+        DiscountCode existing = discountCodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
+        existing.setCode(code.getCode());
+        existing.setDiscountPercentage(code.getDiscountPercentage());
+        existing.setActive(code.getActive());
+        return discountCodeRepository.save(existing);
+    }
 
-    public Double getDiscountPercentage() { return discountPercentage; }
-    public void setDiscountPercentage(Double discountPercentage) { this.discountPercentage = discountPercentage; }
+    @Override
+    public DiscountCode getCodeById(Long id) {
+        return discountCodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
+    }
 
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    @Override
+    public List<DiscountCode> getCodesByInfluencer(Long influencerId) {
+        return discountCodeRepository.findByInfluencer_Id(influencerId);
+    }
 
-    public Influencer getInfluencer() { return influencer; }
-    public void setInfluencer(Influencer influencer) { this.influencer = influencer; }
+    @Override
+    public List<DiscountCode> getCodesByCampaign(Long campaignId) {
+        return discountCodeRepository.findByCampaign_Id(campaignId);
+    }
 
-    public Campaign getCampaign() { return campaign; }
-    public void setCampaign(Campaign campaign) { this.campaign = campaign; }
-
-    public List<SaleTransaction> getSales() { return sales; }
-    public void setSales(List<SaleTransaction> sales) { this.sales = sales; }
+    @Override
+    public void deactivateCode(Long id) {
+        DiscountCode code = getCodeById(id);
+        code.setActive(false);
+        discountCodeRepository.save(code);
+    }
 }
