@@ -2,28 +2,30 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Entity
+@Table(name = "sale_transactions")
 public class SaleTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    private DiscountCode discountCode;
-    private BigDecimal saleAmount;
-    private Date transactionDate;
 
-    @PrePersist
-    protected void onCreate() { this.transactionDate = new Date(); }
+    @ManyToOne
+    @JoinColumn(name = "discount_code_id")
+    private DiscountCode discountCode;
+
+    private BigDecimal transactionAmount; // Must be this name
+    private Timestamp transactionDate;
+    private Long customerId;
+
+    public SaleTransaction() {}
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public BigDecimal getTransactionAmount() { return transactionAmount; }
+    public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
+    public Timestamp getTransactionDate() { return transactionDate; }
+    public void setTransactionDate(Timestamp transactionDate) { this.transactionDate = transactionDate; }
     public DiscountCode getDiscountCode() { return discountCode; }
     public void setDiscountCode(DiscountCode discountCode) { this.discountCode = discountCode; }
-    public BigDecimal getSaleAmount() { return saleAmount; }
-    public void setSaleAmount(BigDecimal saleAmount) { this.saleAmount = saleAmount; }
-    public Date getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(Date transactionDate) { this.transactionDate = transactionDate; }
 }
