@@ -6,8 +6,11 @@ import java.util.List;
 public interface DiscountCodeService {
     DiscountCode createDiscountCode(DiscountCode code);
     DiscountCode updateDiscountCode(Long id, DiscountCode updated);
-    DiscountCode getDiscountCodeById(Long id); // Corrected name
-    List<DiscountCode> getCodesForInfluencer(Long influencerId); // Corrected name
-    List<DiscountCode> getCodesForCampaign(Long campaignId); // Corrected name
+    
+    // Change these names to match your Controller's calls
+    DiscountCode getCodeById(Long id); 
+    List<DiscountCode> getCodesByInfluencer(Long influencerId);
+    List<DiscountCode> getCodesByCampaign(Long campaignId);
+    
     void deactivateCode(Long id);
 }
