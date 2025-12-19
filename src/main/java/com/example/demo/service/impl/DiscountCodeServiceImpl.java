@@ -44,7 +44,7 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
 
         Campaign campaign = campaignRepository.findById(code.getCampaign().getId())
                 .orElseThrow(() -> new RuntimeException("Campaign not found"));
-        if (!campaign.isActive()) {
+        if (!campaign.getActive()) {
             throw new RuntimeException("Campaign is not active");
         }
 
