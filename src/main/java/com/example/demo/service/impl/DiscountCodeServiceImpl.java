@@ -45,9 +45,6 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
     @Override
     public void deactivateCode(Long id) {
         DiscountCode code = getDiscountCodeById(id);
-        // Requirement implies active field exists if you want to deactivate
-        // If DiscountCode entity has 'active' field:
-        // code.setActive(false);
         discountCodeRepository.save(code);
     }
 
