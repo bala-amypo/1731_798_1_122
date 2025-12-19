@@ -20,9 +20,9 @@ public class InfluencerController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Influencer> create(@RequestBody Influencer influencer) {
-        return ResponseEntity.ok(influencerService.createInfluencer(influencer));
-    }
+    public ResponseEntity<Influencer> createInfluencer(@RequestBody Influencer influencer) {
+    return ResponseEntity.ok(influencerService.createInfluencer(influencer));
+}
 
     @PutMapping("/{id}")
     public ResponseEntity<Influencer> update(@PathVariable Long id, @RequestBody Influencer influencer) {
@@ -34,7 +34,7 @@ public class InfluencerController {
         return ResponseEntity.ok(influencerService.getInfluencerById(id));
     }
     @GetMapping("/")
-public ResponseEntity<List<Influencer>> getAllInfluencers() {
+    public ResponseEntity<List<Influencer>> getAllInfluencers() {
     return ResponseEntity.ok(influencerService.getAllInfluencers());
 }
     @PutMapping("/{id}/deactivate")
