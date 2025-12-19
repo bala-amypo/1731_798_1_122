@@ -20,12 +20,12 @@ public class SaleTransaction {
     private Long customerId;
 
     public SaleTransaction() {}
-
-    // Getters and Setters
     public BigDecimal getTransactionAmount() { return transactionAmount; }
     public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
     public Timestamp getTransactionDate() { return transactionDate; }
     public void setTransactionDate(Timestamp transactionDate) { this.transactionDate = transactionDate; }
     public DiscountCode getDiscountCode() { return discountCode; }
     public void setDiscountCode(DiscountCode discountCode) { this.discountCode = discountCode; }
+    public Long getCustomerId() { return customerId; }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
 }
