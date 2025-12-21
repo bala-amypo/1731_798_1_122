@@ -20,16 +20,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(User user) {
-        if (user.getRole() == null) {
-            user.setRole("USER");
-        }
-        
         // Check if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new RuntimeException("Email already exists");
         }
         
-        // Hash password
+        // If role is not provided, default to MARKETER
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("MARKETER");
+        }
+        
+        // Hash the password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         
         return userRepository.save(user);
@@ -39,11 +40,5 @@ public class UserServiceImpl implements UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-    }
-
-    @Override
-    public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 }
