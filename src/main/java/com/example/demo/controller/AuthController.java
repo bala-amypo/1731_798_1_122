@@ -12,8 +12,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,14 +27,10 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        // Convert RegisterRequest to User entity
         User user = new User();
         user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
@@ -43,15 +39,19 @@ public class AuthController {
         
         User registeredUser = userService.registerUser(user);
         
-        // Generate token
-        String token = jwtUtil.generateToken(registeredUser.getEmail(), registeredUser.getRole());
-        
-        AuthResponse response = new AuthResponse(
-            token, 
-            registeredUser.getEmail(), 
-            registeredUser.getRole(), 
-            registeredUser.getFullName()
+        // Create simple UserDetails
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+            registeredUser.getEmail(),
+            "",
+            java.util.Collections.emptyList()
         );
+        
+        String token = jwtUtil.generateToken(userDetails);
+        
+        AuthResponse response = new AuthResponse(token);
+        response.setEmail(registeredUser.getEmail());
+        response.setRole(registeredUser.getRole());
+        response.setFullName(registeredUser.getFullName());
         
         return ResponseEntity.ok(response);
     }
@@ -68,14 +68,14 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         User user = userService.findByEmail(loginRequest.getEmail());
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
         
-        AuthResponse response = new AuthResponse(
-            token, 
-            user.getEmail(), 
-            user.getRole(), 
-            user.getFullName()
-        );
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String token = jwtUtil.generateToken(userDetails);
+        
+        AuthResponse response = new AuthResponse(token);
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setFullName(user.getFullName());
         
         return ResponseEntity.ok(response);
     }
