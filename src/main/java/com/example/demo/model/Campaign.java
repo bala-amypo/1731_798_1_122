@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class Campaign {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "campaign_name", nullable = false)
+    @Column(name = "campaign_name", nullable = false, unique = true)
     private String campaignName;
     
     @Column(name = "start_date", nullable = false)
@@ -22,16 +23,27 @@ public class Campaign {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
     
+    @Column(nullable = false)
+    private BigDecimal budget;
+    
+    @Column(nullable = false)
+    private Boolean active = true;
+    
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DiscountCode> discountCodes = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RoiReport> roiReports = new ArrayList<>();
 
     // Constructors
     public Campaign() {}
 
-    public Campaign(String campaignName, LocalDate startDate, LocalDate endDate) {
+    public Campaign(String campaignName, LocalDate startDate, LocalDate endDate, BigDecimal budget, Boolean active) {
         this.campaignName = campaignName;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.budget = budget;
+        this.active = active;
     }
 
     // Getters and Setters
@@ -67,11 +79,35 @@ public class Campaign {
         this.endDate = endDate;
     }
 
+    public BigDecimal getBudget() {
+        return budget;
+    }
+
+    public void setBudget(BigDecimal budget) {
+        this.budget = budget;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     public List<DiscountCode> getDiscountCodes() {
         return discountCodes;
     }
 
     public void setDiscountCodes(List<DiscountCode> discountCodes) {
         this.discountCodes = discountCodes;
+    }
+
+    public List<RoiReport> getRoiReports() {
+        return roiReports;
+    }
+
+    public void setRoiReports(List<RoiReport> roiReports) {
+        this.roiReports = roiReports;
     }
 }
