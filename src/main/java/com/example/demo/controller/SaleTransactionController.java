@@ -1,14 +1,18 @@
 package com.example.demo.controller;
+
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.SaleTransaction;
 import com.example.demo.service.SaleTransactionService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/sales")
-@Tag(name = "Sales Transactions")
+@Tag(name = "Sales Transactions", description = "Sale transaction management endpoints")
 public class SaleTransactionController {
 
     private final SaleTransactionService saleTransactionService;
@@ -18,22 +22,37 @@ public class SaleTransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<SaleTransaction> createSale(@RequestBody SaleTransaction transaction) {
-        return ResponseEntity.ok(saleTransactionService.logTransaction(transaction));
+    @Operation(summary = "Log a new sale transaction")
+    public ApiResponse<SaleTransaction> logTransaction(@Valid @RequestBody SaleTransaction transaction) {
+        SaleTransaction loggedTransaction = saleTransactionService.logTransaction(transaction);
+        return ApiResponse.success("Sale transaction logged successfully", loggedTransaction);
     }
 
-    @GetMapping("/code/{discountCodeId}")
-    public ResponseEntity<List<SaleTransaction>> getByCode(@PathVariable Long discountCodeId) {
-        return ResponseEntity.ok(saleTransactionService.getSalesForCode(discountCodeId));
+    @GetMapping("/{id}")
+    @Operation(summary = "Get sale transaction by ID")
+    public ApiResponse<SaleTransaction> getTransaction(@PathVariable Long id) {
+        SaleTransaction transaction = saleTransactionService.getTransactionById(id);
+        return ApiResponse.success(transaction);
+    }
+
+    @GetMapping("/code/{codeId}")
+    @Operation(summary = "Get sales for a discount code")
+    public ApiResponse<List<SaleTransaction>> getSalesForCode(@PathVariable Long codeId) {
+        List<SaleTransaction> sales = saleTransactionService.getSalesForCode(codeId);
+        return ApiResponse.success(sales);
     }
 
     @GetMapping("/influencer/{influencerId}")
-    public ResponseEntity<List<SaleTransaction>> getByInfluencer(@PathVariable Long influencerId) {
-        return ResponseEntity.ok(saleTransactionService.getSalesForInfluencer(influencerId));
+    @Operation(summary = "Get sales for an influencer")
+    public ApiResponse<List<SaleTransaction>> getSalesForInfluencer(@PathVariable Long influencerId) {
+        List<SaleTransaction> sales = saleTransactionService.getSalesForInfluencer(influencerId);
+        return ApiResponse.success(sales);
     }
 
     @GetMapping("/campaign/{campaignId}")
-    public ResponseEntity<List<SaleTransaction>> getByCampaign(@PathVariable Long campaignId) {
-        return ResponseEntity.ok(saleTransactionService.getSalesForCampaign(campaignId));
+    @Operation(summary = "Get sales for a campaign")
+    public ApiResponse<List<SaleTransaction>> getSalesForCampaign(@PathVariable Long campaignId) {
+        List<SaleTransaction> sales = saleTransactionService.getSalesForCampaign(campaignId);
+        return ApiResponse.success(sales);
     }
 }
