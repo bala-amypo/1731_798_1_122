@@ -11,8 +11,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
     
     @Column(nullable = false, unique = true)
     private String email;
@@ -21,7 +21,7 @@ public class User {
     private String password;
     
     @Column(nullable = false)
-    private String role = "USER";
+    private String role = "MARKETER";
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -34,8 +34,8 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(String name, String email, String password, String role) {
-        this.name = name;
+    public User(String fullName, String email, String password, String role) {
+        this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -50,12 +50,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
