@@ -36,7 +36,7 @@ public class AuthController {
     @Operation(summary = "Register a new user")
     public ApiResponse<User> register(@Valid @RequestBody RegisterRequest request) {
         User user = new User();
-        user.setFullName(request.getFullName());
+        user.setFullName(request.getFullName());  // Fixed: using setFullName
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
