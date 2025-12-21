@@ -2,41 +2,77 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sale_transactions")
 public class SaleTransaction {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_code_id", nullable = false)
     private DiscountCode discountCode;
+    
+    @Column(name = "transaction_amount", nullable = false)
+    private BigDecimal transactionAmount;
+    
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDateTime transactionDate;
+    
+    @Column(name = "customer_id", nullable = false)
+    private Long customerId;
 
-    @Column(name = "sale_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal saleAmount;
+    // Constructors
+    public SaleTransaction() {}
 
-    @Column(name = "transaction_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date transactionDate;
-
-    @PrePersist
-    protected void onCreate() {
-        transactionDate = new Date();
+    public SaleTransaction(DiscountCode discountCode, BigDecimal transactionAmount, LocalDateTime transactionDate, Long customerId) {
+        this.discountCode = discountCode;
+        this.transactionAmount = transactionAmount;
+        this.transactionDate = transactionDate;
+        this.customerId = customerId;
     }
 
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-    public DiscountCode getDiscountCode() { return discountCode; }
-    public void setDiscountCode(DiscountCode discountCode) { this.discountCode = discountCode; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public BigDecimal getSaleAmount() { return saleAmount; }
-    public void setSaleAmount(BigDecimal saleAmount) { this.saleAmount = saleAmount; }
+    public DiscountCode getDiscountCode() {
+        return discountCode;
+    }
 
-    public Date getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(Date transactionDate) { this.transactionDate = transactionDate; }
+    public void setDiscountCode(DiscountCode discountCode) {
+        this.discountCode = discountCode;
+    }
+
+    public BigDecimal getTransactionAmount() {
+        return transactionAmount;
+    }
+
+    public void setTransactionAmount(BigDecimal transactionAmount) {
+        this.transactionAmount = transactionAmount;
+    }
+
+    public LocalDateTime getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDateTime transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 }

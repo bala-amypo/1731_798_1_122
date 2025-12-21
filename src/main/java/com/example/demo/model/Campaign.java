@@ -1,50 +1,77 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "campaigns")
 public class Campaign {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "campaign_name", unique = true, nullable = false)
+    
+    @Column(name = "campaign_name", nullable = false)
     private String campaignName;
-
+    
     @Column(name = "start_date", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date startDate;
-
+    private LocalDate startDate;
+    
     @Column(name = "end_date", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date endDate;
+    private LocalDate endDate;
+    
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DiscountCode> discountCodes = new ArrayList<>();
 
-    @Column(nullable = false)
-    private BigDecimal budget;
+    // Constructors
+    public Campaign() {}
 
-    @Column(nullable = false)
-    private Boolean active = true;
+    public Campaign(String campaignName, LocalDate startDate, LocalDate endDate) {
+        this.campaignName = campaignName;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-    public String getCampaignName() { return campaignName; }
-    public void setCampaignName(String campaignName) { this.campaignName = campaignName; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Date getStartDate() { return startDate; }
-    public void setStartDate(Date startDate) { this.startDate = startDate; }
+    public String getCampaignName() {
+        return campaignName;
+    }
 
-    public Date getEndDate() { return endDate; }
-    public void setEndDate(Date endDate) { this.endDate = endDate; }
+    public void setCampaignName(String campaignName) {
+        this.campaignName = campaignName;
+    }
 
-    public BigDecimal getBudget() { return budget; }
-    public void setBudget(BigDecimal budget) { this.budget = budget; }
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
-    public Boolean isActive() { return active; }
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public List<DiscountCode> getDiscountCodes() {
+        return discountCodes;
+    }
+
+    public void setDiscountCodes(List<DiscountCode> discountCodes) {
+        this.discountCodes = discountCodes;
+    }
 }

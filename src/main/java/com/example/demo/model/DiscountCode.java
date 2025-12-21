@@ -1,55 +1,99 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "discount_code")
+@Table(name = "discount_codes")
 public class DiscountCode {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
-    private String code;
-
-    @ManyToOne
-    @JoinColumn(name = "influencer_id", nullable = false)
-    private Influencer influencer;
-
-    @ManyToOne
-    @JoinColumn(name = "campaign_id", nullable = false)
-    private Campaign campaign;
-
+    
+    @Column(name = "code_value", nullable = false, unique = true)
+    private String codeValue;
+    
     @Column(name = "discount_percentage", nullable = false)
     private Double discountPercentage;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "influencer_id", nullable = false)
+    private Influencer influencer;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campaign_id", nullable = false)
+    private Campaign campaign;
+    
+    @OneToMany(mappedBy = "discountCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SaleTransaction> saleTransactions = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "discountCode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RoiReport> roiReports = new ArrayList<>();
 
-    @Column(nullable = false)
-    private Boolean active = true;
+    // Constructors
+    public DiscountCode() {}
 
-    @OneToMany(mappedBy = "discountCode", cascade = CascadeType.ALL)
-    private List<SaleTransaction> sales;
+    public DiscountCode(String codeValue, Double discountPercentage) {
+        this.codeValue = codeValue;
+        this.discountPercentage = discountPercentage;
+    }
 
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Influencer getInfluencer() { return influencer; }
-    public void setInfluencer(Influencer influencer) { this.influencer = influencer; }
+    public String getCodeValue() {
+        return codeValue;
+    }
 
-    public Campaign getCampaign() { return campaign; }
-    public void setCampaign(Campaign campaign) { this.campaign = campaign; }
+    public void setCodeValue(String codeValue) {
+        this.codeValue = codeValue;
+    }
 
-    public Double getDiscountPercentage() { return discountPercentage; }
-    public void setDiscountPercentage(Double discountPercentage) { this.discountPercentage = discountPercentage; }
+    public Double getDiscountPercentage() {
+        return discountPercentage;
+    }
 
-    public Boolean isActive() { return active; }
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
+    public void setDiscountPercentage(Double discountPercentage) {
+        this.discountPercentage = discountPercentage;
+    }
 
-    public List<SaleTransaction> getSales() { return sales; }
-    public void setSales(List<SaleTransaction> sales) { this.sales = sales; }
+    public Influencer getInfluencer() {
+        return influencer;
+    }
+
+    public void setInfluencer(Influencer influencer) {
+        this.influencer = influencer;
+    }
+
+    public Campaign getCampaign() {
+        return campaign;
+    }
+
+    public void setCampaign(Campaign campaign) {
+        this.campaign = campaign;
+    }
+
+    public List<SaleTransaction> getSaleTransactions() {
+        return saleTransactions;
+    }
+
+    public void setSaleTransactions(List<SaleTransaction> saleTransactions) {
+        this.saleTransactions = saleTransactions;
+    }
+
+    public List<RoiReport> getRoiReports() {
+        return roiReports;
+    }
+
+    public void setRoiReports(List<RoiReport> roiReports) {
+        this.roiReports = roiReports;
+    }
 }

@@ -2,60 +2,93 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "roi_reports")
 public class RoiReport {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "campaign_id")
-    private Campaign campaign;
-
-    @ManyToOne
-    @JoinColumn(name = "influencer_id")
-    private Influencer influencer;
-
-    @Column(name = "total_sales", precision = 19, scale = 2)
-    private BigDecimal totalSales;
-
-    @Column(name = "total_revenue", precision = 19, scale = 2)
-    private BigDecimal totalRevenue;
-
-    @Column(name = "roi_percentage", precision = 5, scale = 2)
-    private BigDecimal roiPercentage;
-
-    @Column(name = "generated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date generatedAt;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "discount_code_id", nullable = false)
+    private DiscountCode discountCode;
+    
+    @Column(name = "total_sales", nullable = false)
+    private BigDecimal totalSales = BigDecimal.ZERO;
+    
+    @Column(name = "total_transactions", nullable = false)
+    private Integer totalTransactions = 0;
+    
+    @Column(name = "roi_percentage", nullable = false)
+    private Double roiPercentage = 0.0;
+    
+    @Column(name = "generated_at", nullable = false)
+    private LocalDateTime generatedAt;
 
     @PrePersist
     protected void onCreate() {
-        generatedAt = new Date();
+        generatedAt = LocalDateTime.now();
     }
 
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Constructors
+    public RoiReport() {}
 
-    public Campaign getCampaign() { return campaign; }
-    public void setCampaign(Campaign campaign) { this.campaign = campaign; }
+    public RoiReport(DiscountCode discountCode, BigDecimal totalSales, Integer totalTransactions, Double roiPercentage) {
+        this.discountCode = discountCode;
+        this.totalSales = totalSales;
+        this.totalTransactions = totalTransactions;
+        this.roiPercentage = roiPercentage;
+    }
 
-    public Influencer getInfluencer() { return influencer; }
-    public void setInfluencer(Influencer influencer) { this.influencer = influencer; }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-    public BigDecimal getTotalSales() { return totalSales; }
-    public void setTotalSales(BigDecimal totalSales) { this.totalSales = totalSales; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public BigDecimal getTotalRevenue() { return totalRevenue; }
-    public void setTotalRevenue(BigDecimal totalRevenue) { this.totalRevenue = totalRevenue; }
+    public DiscountCode getDiscountCode() {
+        return discountCode;
+    }
 
-    public BigDecimal getRoiPercentage() { return roiPercentage; }
-    public void setRoiPercentage(BigDecimal roiPercentage) { this.roiPercentage = roiPercentage; }
+    public void setDiscountCode(DiscountCode discountCode) {
+        this.discountCode = discountCode;
+    }
 
-    public Date getGeneratedAt() { return generatedAt; }
-    public void setGeneratedAt(Date generatedAt) { this.generatedAt = generatedAt; }
+    public BigDecimal getTotalSales() {
+        return totalSales;
+    }
+
+    public void setTotalSales(BigDecimal totalSales) {
+        this.totalSales = totalSales;
+    }
+
+    public Integer getTotalTransactions() {
+        return totalTransactions;
+    }
+
+    public void setTotalTransactions(Integer totalTransactions) {
+        this.totalTransactions = totalTransactions;
+    }
+
+    public Double getRoiPercentage() {
+        return roiPercentage;
+    }
+
+    public void setRoiPercentage(Double roiPercentage) {
+        this.roiPercentage = roiPercentage;
+    }
+
+    public LocalDateTime getGeneratedAt() {
+        return generatedAt;
+    }
+
+    public void setGeneratedAt(LocalDateTime generatedAt) {
+        this.generatedAt = generatedAt;
+    }
 }

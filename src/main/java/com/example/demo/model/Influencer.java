@@ -1,53 +1,76 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "influencers")
 public class Influencer {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @Column(nullable = false)
     private String name;
-
-    @Column(unique = true, nullable = false)
+    
+    @Column(name = "social_handle", nullable = false, unique = true)
     private String socialHandle;
-
+    
     @Column(nullable = false)
-    private String email;
+    private boolean active = true;
+    
+    @OneToMany(mappedBy = "influencer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DiscountCode> discountCodes = new ArrayList<>();
 
-    @Column(nullable = false)
-    private Boolean active = true;
+    // Constructors
+    public Influencer() {}
 
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = new Date();
+    public Influencer(String name, String socialHandle, boolean active) {
+        this.name = name;
+        this.socialHandle = socialHandle;
+        this.active = active;
     }
 
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getSocialHandle() { return socialHandle; }
-    public void setSocialHandle(String socialHandle) { this.socialHandle = socialHandle; }
+    public String getName() {
+        return name;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Boolean isActive() { return active; }
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
+    public String getSocialHandle() {
+        return socialHandle;
+    }
 
-    public Date getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+    public void setSocialHandle(String socialHandle) {
+        this.socialHandle = socialHandle;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public List<DiscountCode> getDiscountCodes() {
+        return discountCodes;
+    }
+
+    public void setDiscountCodes(List<DiscountCode> discountCodes) {
+        this.discountCodes = discountCodes;
+    }
 }
