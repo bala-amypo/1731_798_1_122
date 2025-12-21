@@ -40,26 +40,25 @@ public class RoiServiceImpl implements RoiService {
         List<SaleTransaction> sales = saleTransactionRepository.findByDiscountCodeId(codeId);
         
         // Calculate total sales
-        BigDecimal totalSales = sales.stream()
-                .map(SaleTransaction::getSaleAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalSales = BigDecimal.ZERO;
+        for (SaleTransaction sale : sales) {
+            totalSales = totalSales.add(sale.getSaleAmount());
+        }
         
         // Calculate total revenue (sales after discount)
-        BigDecimal totalRevenue = sales.stream()
-                .map(sale -> {
-                    BigDecimal discountMultiplier = BigDecimal.ONE
-                            .subtract(BigDecimal.valueOf(discountCode.getDiscountPercentage())
-                                    .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-                    return sale.getSaleAmount().multiply(discountMultiplier);
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        for (SaleTransaction sale : sales) {
+            BigDecimal discountMultiplier = BigDecimal.ONE
+                    .subtract(BigDecimal.valueOf(discountCode.getDiscountPercentage())
+                            .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+            totalRevenue = totalRevenue.add(sale.getSaleAmount().multiply(discountMultiplier));
+        }
         
         // Calculate ROI percentage
         Campaign campaign = discountCode.getCampaign();
         Influencer influencer = discountCode.getInfluencer();
         
         // Calculate prorated budget for this discount code
-        // Simple approach: divide campaign budget equally among all discount codes in the campaign
         long totalCodesInCampaign = discountCodeRepository.findByCampaignId(campaign.getId()).size();
         BigDecimal proratedBudget = campaign.getBudget()
                 .divide(BigDecimal.valueOf(Math.max(totalCodesInCampaign, 1)), 2, RoundingMode.HALF_UP);

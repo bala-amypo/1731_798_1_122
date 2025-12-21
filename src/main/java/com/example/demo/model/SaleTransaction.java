@@ -16,23 +16,23 @@ public class SaleTransaction {
     @JoinColumn(name = "discount_code_id", nullable = false)
     private DiscountCode discountCode;
     
-    @Column(name = "transaction_amount", nullable = false)
-    private BigDecimal transactionAmount;
+    @Column(name = "sale_amount", nullable = false)
+    private BigDecimal saleAmount;
     
-    @Column(name = "transaction_date", nullable = false)
+    @Column(name = "transaction_date")
     private LocalDateTime transactionDate;
-    
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+
+    @PrePersist
+    protected void onCreate() {
+        transactionDate = LocalDateTime.now();
+    }
 
     // Constructors
     public SaleTransaction() {}
 
-    public SaleTransaction(DiscountCode discountCode, BigDecimal transactionAmount, LocalDateTime transactionDate, Long customerId) {
+    public SaleTransaction(DiscountCode discountCode, BigDecimal saleAmount) {
         this.discountCode = discountCode;
-        this.transactionAmount = transactionAmount;
-        this.transactionDate = transactionDate;
-        this.customerId = customerId;
+        this.saleAmount = saleAmount;
     }
 
     // Getters and Setters
@@ -52,12 +52,12 @@ public class SaleTransaction {
         this.discountCode = discountCode;
     }
 
-    public BigDecimal getTransactionAmount() {
-        return transactionAmount;
+    public BigDecimal getSaleAmount() {
+        return saleAmount;
     }
 
-    public void setTransactionAmount(BigDecimal transactionAmount) {
-        this.transactionAmount = transactionAmount;
+    public void setSaleAmount(BigDecimal saleAmount) {
+        this.saleAmount = saleAmount;
     }
 
     public LocalDateTime getTransactionDate() {
@@ -66,13 +66,5 @@ public class SaleTransaction {
 
     public void setTransactionDate(LocalDateTime transactionDate) {
         this.transactionDate = transactionDate;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
     }
 }

@@ -13,19 +13,23 @@ public class RoiReport {
     private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "discount_code_id", nullable = false)
-    private DiscountCode discountCode;
+    @JoinColumn(name = "campaign_id")
+    private Campaign campaign;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "influencer_id")
+    private Influencer influencer;
     
     @Column(name = "total_sales", nullable = false)
     private BigDecimal totalSales = BigDecimal.ZERO;
     
-    @Column(name = "total_transactions", nullable = false)
-    private Integer totalTransactions = 0;
+    @Column(name = "total_revenue", nullable = false)
+    private BigDecimal totalRevenue = BigDecimal.ZERO;
     
     @Column(name = "roi_percentage", nullable = false)
-    private Double roiPercentage = 0.0;
+    private BigDecimal roiPercentage = BigDecimal.ZERO;
     
-    @Column(name = "generated_at", nullable = false)
+    @Column(name = "generated_at")
     private LocalDateTime generatedAt;
 
     @PrePersist
@@ -36,10 +40,12 @@ public class RoiReport {
     // Constructors
     public RoiReport() {}
 
-    public RoiReport(DiscountCode discountCode, BigDecimal totalSales, Integer totalTransactions, Double roiPercentage) {
-        this.discountCode = discountCode;
+    public RoiReport(Campaign campaign, Influencer influencer, BigDecimal totalSales, 
+                     BigDecimal totalRevenue, BigDecimal roiPercentage) {
+        this.campaign = campaign;
+        this.influencer = influencer;
         this.totalSales = totalSales;
-        this.totalTransactions = totalTransactions;
+        this.totalRevenue = totalRevenue;
         this.roiPercentage = roiPercentage;
     }
 
@@ -52,12 +58,20 @@ public class RoiReport {
         this.id = id;
     }
 
-    public DiscountCode getDiscountCode() {
-        return discountCode;
+    public Campaign getCampaign() {
+        return campaign;
     }
 
-    public void setDiscountCode(DiscountCode discountCode) {
-        this.discountCode = discountCode;
+    public void setCampaign(Campaign campaign) {
+        this.campaign = campaign;
+    }
+
+    public Influencer getInfluencer() {
+        return influencer;
+    }
+
+    public void setInfluencer(Influencer influencer) {
+        this.influencer = influencer;
     }
 
     public BigDecimal getTotalSales() {
@@ -68,19 +82,19 @@ public class RoiReport {
         this.totalSales = totalSales;
     }
 
-    public Integer getTotalTransactions() {
-        return totalTransactions;
+    public BigDecimal getTotalRevenue() {
+        return totalRevenue;
     }
 
-    public void setTotalTransactions(Integer totalTransactions) {
-        this.totalTransactions = totalTransactions;
+    public void setTotalRevenue(BigDecimal totalRevenue) {
+        this.totalRevenue = totalRevenue;
     }
 
-    public Double getRoiPercentage() {
+    public BigDecimal getRoiPercentage() {
         return roiPercentage;
     }
 
-    public void setRoiPercentage(Double roiPercentage) {
+    public void setRoiPercentage(BigDecimal roiPercentage) {
         this.roiPercentage = roiPercentage;
     }
 
