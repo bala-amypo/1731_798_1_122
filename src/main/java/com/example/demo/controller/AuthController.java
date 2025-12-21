@@ -1,82 +1,68 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.AuthResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
+@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    public AuthController(UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+    @Operation(summary = "Register a new user")
+    public ApiResponse<User> register(@Valid @RequestBody RegisterRequest request) {
         User user = new User();
-        user.setFullName(registerRequest.getFullName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(registerRequest.getPassword());
-        user.setRole(registerRequest.getRole());
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setRole(request.getRole());
         
         User registeredUser = userService.registerUser(user);
-        
-        // Create simple UserDetails
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-            registeredUser.getEmail(),
-            "",
-            java.util.Collections.emptyList()
-        );
-        
-        String token = jwtUtil.generateToken(userDetails);
-        
-        AuthResponse response = new AuthResponse(token);
-        response.setEmail(registeredUser.getEmail());
-        response.setRole(registeredUser.getRole());
-        response.setFullName(registeredUser.getFullName());
-        
-        return ResponseEntity.ok(response);
+        return ApiResponse.success("User registered successfully", registeredUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(), 
-                loginRequest.getPassword()
-            )
-        );
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        
-        User user = userService.findByEmail(loginRequest.getEmail());
-        
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(userDetails);
-        
-        AuthResponse response = new AuthResponse(token);
-        response.setEmail(user.getEmail());
-        response.setRole(user.getRole());
-        response.setFullName(user.getFullName());
-        
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Authenticate user and get JWT token")
+    public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            User user = userService.findByEmail(request.getEmail());
+            String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+            
+            AuthResponse authResponse = new AuthResponse(token, user.getId(), user.getEmail(), user.getRole());
+            return ApiResponse.success("Login successful", authResponse);
+            
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
     }
 }

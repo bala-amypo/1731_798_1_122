@@ -1,34 +1,31 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.RoiReport;
 import com.example.demo.model.DiscountCode;
-import com.example.demo.model.SaleTransaction;
-import com.example.demo.model.Campaign;
 import com.example.demo.model.Influencer;
+import com.example.demo.model.Campaign;
+import com.example.demo.model.SaleTransaction;
 import com.example.demo.repository.RoiReportRepository;
 import com.example.demo.repository.DiscountCodeRepository;
 import com.example.demo.repository.SaleTransactionRepository;
 import com.example.demo.service.RoiService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
 @Service
-@Transactional
 public class RoiServiceImpl implements RoiService {
 
     private final RoiReportRepository roiReportRepository;
     private final DiscountCodeRepository discountCodeRepository;
     private final SaleTransactionRepository saleTransactionRepository;
 
-    @Autowired
     public RoiServiceImpl(RoiReportRepository roiReportRepository,
-                          DiscountCodeRepository discountCodeRepository,
-                          SaleTransactionRepository saleTransactionRepository) {
+                         DiscountCodeRepository discountCodeRepository,
+                         SaleTransactionRepository saleTransactionRepository) {
         this.roiReportRepository = roiReportRepository;
         this.discountCodeRepository = discountCodeRepository;
         this.saleTransactionRepository = saleTransactionRepository;
@@ -37,47 +34,50 @@ public class RoiServiceImpl implements RoiService {
     @Override
     public RoiReport generateRoiForCode(Long codeId) {
         DiscountCode discountCode = discountCodeRepository.findById(codeId)
-                .orElseThrow(() -> new RuntimeException("Discount code not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
+        
+        // Get all sales for this discount code
         List<SaleTransaction> sales = saleTransactionRepository.findByDiscountCodeId(codeId);
         
-        BigDecimal totalSales = BigDecimal.ZERO;
-        BigDecimal totalRevenue = BigDecimal.ZERO;
+        // Calculate total sales
+        BigDecimal totalSales = sales.stream()
+                .map(SaleTransaction::getSaleAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         
-        for (SaleTransaction sale : sales) {
-            totalSales = totalSales.add(sale.getSaleAmount());
-            // Revenue is sale amount minus discount
-            BigDecimal discountAmount = sale.getSaleAmount()
-                    .multiply(BigDecimal.valueOf(discountCode.getDiscountPercentage() / 100.0));
-            totalRevenue = totalRevenue.add(sale.getSaleAmount().subtract(discountAmount));
-        }
+        // Calculate total revenue (sales after discount)
+        BigDecimal totalRevenue = sales.stream()
+                .map(sale -> {
+                    BigDecimal discountMultiplier = BigDecimal.ONE
+                            .subtract(BigDecimal.valueOf(discountCode.getDiscountPercentage())
+                                    .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+                    return sale.getSaleAmount().multiply(discountMultiplier);
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         
-        // Calculate ROI: (Revenue - Cost) / Cost * 100
+        // Calculate ROI percentage
         Campaign campaign = discountCode.getCampaign();
-        BigDecimal campaignBudget = campaign.getBudget();
+        Influencer influencer = discountCode.getInfluencer();
         
-        // Calculate pro-rated budget for this specific discount code
-        // This is a simplification - you might want a more sophisticated allocation
-        long totalCodesForCampaign = discountCodeRepository.countByCampaignId(campaign.getId());
-        BigDecimal allocatedBudget = campaignBudget.divide(
-            BigDecimal.valueOf(Math.max(totalCodesForCampaign, 1)), 
-            2, 
-            RoundingMode.HALF_UP
-        );
+        // Calculate prorated budget for this discount code
+        // Simple approach: divide campaign budget equally among all discount codes in the campaign
+        long totalCodesInCampaign = discountCodeRepository.findByCampaignId(campaign.getId()).size();
+        BigDecimal proratedBudget = campaign.getBudget()
+                .divide(BigDecimal.valueOf(Math.max(totalCodesInCampaign, 1)), 2, RoundingMode.HALF_UP);
         
         BigDecimal roiPercentage = BigDecimal.ZERO;
-        if (allocatedBudget.compareTo(BigDecimal.ZERO) > 0) {
-            roiPercentage = totalRevenue.subtract(allocatedBudget)
-                    .divide(allocatedBudget, 4, RoundingMode.HALF_UP)
+        if (proratedBudget.compareTo(BigDecimal.ZERO) > 0) {
+            roiPercentage = totalRevenue.subtract(proratedBudget)
+                    .divide(proratedBudget, 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100));
         }
         
+        // Create and save ROI report
         RoiReport roiReport = new RoiReport();
         roiReport.setCampaign(campaign);
-        roiReport.setInfluencer(discountCode.getInfluencer());
+        roiReport.setInfluencer(influencer);
         roiReport.setTotalSales(totalSales);
         roiReport.setTotalRevenue(totalRevenue);
-        roiReport.setRoiPercentage(roiPercentage);
+        roiReport.setRoiPercentage(roiPercentage.setScale(2, RoundingMode.HALF_UP));
         
         return roiReportRepository.save(roiReport);
     }
@@ -85,7 +85,7 @@ public class RoiServiceImpl implements RoiService {
     @Override
     public RoiReport getReportById(Long id) {
         return roiReportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ROI report not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("ROI report not found"));
     }
 
     @Override
