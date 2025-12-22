@@ -1,15 +1,17 @@
+// TestResultListener.java
 package com.example.demo;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
 
-@SpringBootApplication
-@ServletComponentScan // This is the required line to detect your Servlet
-public class DemoApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+public class TestResultListener implements ITestListener {
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        System.out.println("Test passed: " + result.getName());
     }
-
+    
+    @Override
+    public void onTestFailure(ITestResult result) {
+        System.out.println("Test failed: " + result.getName());
+    }
 }
