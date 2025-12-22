@@ -15,34 +15,53 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-            .authorizeRequests()
-                .antMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
-            .and()
-            .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
         return http.build();
     }
-    
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
 }
+
+
+
+
+// @Configuration
+// @EnableWebSecurity
+// public class SecurityConfig {
+    
+//     @Autowired
+//     private JwtRequestFilter jwtRequestFilter;
+    
+//     @Bean
+//     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//         http.csrf().disable()
+//             .authorizeRequests()
+//                 .antMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+//                 .anyRequest().authenticated()
+//             .and()
+//             .sessionManagement()
+//                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        
+//         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+//         return http.build();
+//     }
+    
+//     @Bean
+//     public PasswordEncoder passwordEncoder() {
+//         return new BCryptPasswordEncoder();
+//     }
+    
+//     @Bean
+//     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+//         return authConfig.getAuthenticationManager();
+//     }
+// }
