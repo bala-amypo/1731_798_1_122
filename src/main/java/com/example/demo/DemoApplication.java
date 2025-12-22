@@ -1,17 +1,11 @@
-// TestResultListener.java
 package com.example.demo;
 
-import org.testng.ITestListener;
-import org.testng.ITestResult;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class TestResultListener implements ITestListener {
-    @Override
-    public void onTestSuccess(ITestResult result) {
-        System.out.println("Test passed: " + result.getName());
-    }
-    
-    @Override
-    public void onTestFailure(ITestResult result) {
-        System.out.println("Test failed: " + result.getName());
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
     }
 }
