@@ -1,58 +1,36 @@
+// CampaignController.java
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.Campaign;
 import com.example.demo.service.CampaignService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/campaigns")
-@Tag(name = "Campaigns", description = "Campaign management endpoints")
 public class CampaignController {
-
-    private final CampaignService campaignService;
-
-    public CampaignController(CampaignService campaignService) {
-        this.campaignService = campaignService;
-    }
-
+    @Autowired
+    private CampaignService campaignService;
+    
     @PostMapping
-    @Operation(summary = "Create a new campaign")
-    public ApiResponse<Campaign> createCampaign(@Valid @RequestBody Campaign campaign) {
-        Campaign createdCampaign = campaignService.createCampaign(campaign);
-        return ApiResponse.success("Campaign created successfully", createdCampaign);
+    public ResponseEntity<Campaign> createCampaign(@RequestBody Campaign campaign) {
+        return ResponseEntity.ok(campaignService.createCampaign(campaign));
     }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Update an existing campaign")
-    public ApiResponse<Campaign> updateCampaign(@PathVariable Long id, @Valid @RequestBody Campaign campaign) {
-        Campaign updatedCampaign = campaignService.updateCampaign(id, campaign);
-        return ApiResponse.success("Campaign updated successfully", updatedCampaign);
-    }
-
+    
     @GetMapping("/{id}")
-    @Operation(summary = "Get campaign by ID")
-    public ApiResponse<Campaign> getCampaign(@PathVariable Long id) {
-        Campaign campaign = campaignService.getCampaignById(id);
-        return ApiResponse.success(campaign);
+    public ResponseEntity<Campaign> getCampaign(@PathVariable Long id) {
+        return ResponseEntity.ok(campaignService.getCampaignById(id));
     }
-
+    
     @GetMapping
-    @Operation(summary = "Get all campaigns")
-    public ApiResponse<List<Campaign>> getAllCampaigns() {
-        List<Campaign> campaigns = campaignService.getAllCampaigns();
-        return ApiResponse.success(campaigns);
+    public ResponseEntity<List<Campaign>> getAllCampaigns() {
+        return ResponseEntity.ok(campaignService.getAllCampaigns());
     }
-
-    @PutMapping("/{id}/deactivate")
-    @Operation(summary = "Deactivate a campaign")
-    public ApiResponse<Campaign> deactivateCampaign(@PathVariable Long id) {
-        Campaign deactivatedCampaign = campaignService.deactivateCampaign(id);
-        return ApiResponse.success("Campaign deactivated successfully", deactivatedCampaign);
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<Campaign> updateCampaign(@PathVariable Long id, @RequestBody Campaign campaign) {
+        return ResponseEntity.ok(campaignService.updateCampaign(id, campaign));
     }
 }
