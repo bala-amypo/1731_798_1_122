@@ -1,4 +1,4 @@
-// AuthController.java
+// Update AuthController.java
 package com.example.demo.controller;
 
 import com.example.demo.model.User;
@@ -6,14 +6,20 @@ import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
     @Autowired
     private UserService userService;
     
@@ -25,17 +31,23 @@ public class AuthController {
         String email = credentials.get("email");
         String password = credentials.get("password");
         
-        // Validate credentials (simplified)
-        User user = userService.getUserByEmail(email);
-        if (user == null || !user.getPassword().equals(password)) {
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+            );
+            
+            User user = userService.getUserByEmail(email);
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("role", user.getRole());
+            response.put("email", user.getEmail());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             throw new RuntimeException("Invalid credentials");
         }
-        
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
-        
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        return ResponseEntity.ok(response);
     }
     
     @PostMapping("/register")
