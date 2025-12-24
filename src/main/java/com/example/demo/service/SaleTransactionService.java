@@ -6,6 +6,8 @@ import com.example.demo.repository.SaleTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.math.BigDecimal; 
+
 
 @Service
 public class SaleTransactionService {
