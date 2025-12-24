@@ -12,10 +12,16 @@ public class SaleTransactionService {
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
     
+    // public SaleTransaction createSale(SaleTransaction saleTransaction) {
+    //     return saleTransactionRepository.save(saleTransaction);
+    // }
     public SaleTransaction createSale(SaleTransaction saleTransaction) {
-        return saleTransactionRepository.save(saleTransaction);
+    // Validate amount here
+    if (saleTransaction.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        throw new IllegalArgumentException("Transaction amount must be > 0");
     }
-    
+    return saleTransactionRepository.save(saleTransaction);
+}
     public List<SaleTransaction> getSalesForCode(Long discountCodeId) {
         return saleTransactionRepository.findByDiscountCodeId(discountCodeId);
     }
