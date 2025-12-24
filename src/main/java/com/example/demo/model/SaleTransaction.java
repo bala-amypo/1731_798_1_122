@@ -1,4 +1,3 @@
-// SaleTransaction.java
 package com.example.demo.model;
 
 import javax.persistence.*;
@@ -21,23 +20,49 @@ public class SaleTransaction {
     private DiscountCode discountCode;
     
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
     
-    public BigDecimal getTransactionAmount() { return transactionAmount; }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public BigDecimal getTransactionAmount() {
+        return transactionAmount;
+    }
+    
     public void setTransactionAmount(BigDecimal transactionAmount) { 
+        if (transactionAmount == null) {
+            throw new IllegalArgumentException("Transaction amount cannot be null");
+        }
         if (transactionAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Transaction amount must be > 0");
         }
         this.transactionAmount = transactionAmount; 
     }
     
-    public Timestamp getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(Timestamp transactionDate) { this.transactionDate = transactionDate; }
+    public Timestamp getTransactionDate() {
+        return transactionDate;
+    }
     
-    public Long getCustomerId() { return customerId; }
-    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+    public void setTransactionDate(Timestamp transactionDate) {
+        this.transactionDate = transactionDate;
+    }
     
-    public DiscountCode getDiscountCode() { return discountCode; }
-    public void setDiscountCode(DiscountCode discountCode) { this.discountCode = discountCode; }
+    public Long getCustomerId() {
+        return customerId;
+    }
+    
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+    
+    public DiscountCode getDiscountCode() {
+        return discountCode;
+    }
+    
+    public void setDiscountCode(DiscountCode discountCode) {
+        this.discountCode = discountCode;
+    }
 }
