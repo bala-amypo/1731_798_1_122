@@ -15,65 +15,48 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+    String email = loginRequest.get("email");
+    String password = loginRequest.get("password");
     
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private JwtUtil jwtUtil;
-    
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("email");
-        String password = loginRequest.get("password");
+    try {
+        System.out.println("Attempting login for: " + email); // Debug log
         
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-            );
-            
-            User user = userService.getUserByEmail(email);
-            String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
-            
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            response.put("role", user.getRole());
-            response.put("email", user.getEmail());
-            response.put("message", "Login successful");
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid email or password");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
-    }
-    
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        try {
-            // Don't use client-provided ID
-            user.setId(null);
-            
-            User createdUser = userService.createUser(user);
-            
-            // Return without password
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", createdUser.getId());
-            response.put("email", createdUser.getEmail());
-            response.put("role", createdUser.getRole());
-            response.put("createdAt", createdUser.getCreatedAt());
-            response.put("message", "Registration successful");
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Registration failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-        }
+        Authentication auth = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(email, password)
+        );
+        
+        System.out.println("Authentication successful for: " + email); // Debug log
+        
+        User user = userService.getUserByEmail(email);
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("role", user.getRole());
+        response.put("email", user.getEmail());
+        response.put("message", "Login successful");
+        
+        return ResponseEntity.ok(response);
+        
+    } catch (BadCredentialsException e) {
+        System.err.println("Bad credentials for: " + email);
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Invalid email or password");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        
+    } catch (AuthenticationException e) {
+        System.err.println("Authentication failed for: " + email + " - " + e.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Authentication failed: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        
+    } catch (Exception e) {
+        System.err.println("Login error for: " + email + " - " + e.getMessage());
+        e.printStackTrace(); // This will show in logs
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Login failed: " + e.getClass().getSimpleName());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
