@@ -56,9 +56,11 @@
 //     }
 // }
 
+
 package com.example.demo.controller;
 
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
@@ -88,15 +90,15 @@ public class AuthController {
     
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        String email = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
-        
         try {
             Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getEmail(), 
+                    loginRequest.getPassword()
+                )
             );
             
-            User user = userService.getUserByEmail(email);
+            User user = userService.getUserByEmail(loginRequest.getEmail());
             String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
             
             Map<String, String> response = new HashMap<>();
@@ -107,25 +109,40 @@ public class AuthController {
             
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid credentials");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid email or password"));
         } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Authentication failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Login failed: " + e.getMessage()));
         }
     }
     
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         try {
+            // Convert RegisterRequest to User entity
+            User user = new User();
+            user.setEmail(registerRequest.getEmail());
+            user.setPassword(registerRequest.getPassword());
+            user.setRole(registerRequest.getRole()); // Will use default if null
+            
             User createdUser = userService.createUser(user);
-            return ResponseEntity.ok(createdUser);
+            
+            // Return user info without password
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", createdUser.getId());
+            response.put("email", createdUser.getEmail());
+            response.put("role", createdUser.getRole());
+            response.put("createdAt", createdUser.getCreatedAt());
+            response.put("message", "Registration successful");
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Registration failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
     }
 }
