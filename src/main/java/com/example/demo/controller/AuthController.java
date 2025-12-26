@@ -1,6 +1,6 @@
-// Update AuthController.java
 package com.example.demo.controller;
 
+import com.example.demo.dto.LoginRequest; // Add this import
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
@@ -27,9 +27,9 @@ public class AuthController {
     private JwtUtil jwtUtil;
     
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) { // Change this line
+        String email = loginRequest.getEmail(); // Change this
+        String password = loginRequest.getPassword(); // Change this
         
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -55,4 +55,3 @@ public class AuthController {
         return ResponseEntity.ok(userService.createUser(user));
     }
 }
-
