@@ -58,13 +58,15 @@
 
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequest; // ADD THIS IMPORT
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -85,9 +87,9 @@ public class AuthController {
     private JwtUtil jwtUtil;
     
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) { // CHANGE THIS LINE
-        String email = loginRequest.getEmail(); // CHANGE THIS LINE
-        String password = loginRequest.getPassword(); // CHANGE THIS LINE
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
         
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -101,15 +103,29 @@ public class AuthController {
             response.put("token", token);
             response.put("role", user.getRole());
             response.put("email", user.getEmail());
+            response.put("message", "Login successful");
             
             return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         } catch (Exception e) {
-            throw new RuntimeException("Invalid credentials");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
     
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            User createdUser = userService.createUser(user);
+            return ResponseEntity.ok(createdUser);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Registration failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 }
