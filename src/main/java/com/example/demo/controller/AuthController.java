@@ -26,19 +26,25 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
     
+    /**
+     * Login endpoint using form parameters
+     * 
+     * Swagger will show:
+     * Parameters:
+     *   email (required): string
+     *   password (required): string
+     * 
+     * Response:
+     * {
+     *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     *   "role": "ADMIN",
+     *   "email": "user@example.com"
+     * }
+     */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> requestBody) {
-        // Extract email and password from the request body
-        String email = requestBody.get("email");
-        String password = requestBody.get("password");
-        
-        // Validate that email and password are provided
-        if (email == null || email.isEmpty()) {
-            throw new RuntimeException("Email is required");
-        }
-        if (password == null || password.isEmpty()) {
-            throw new RuntimeException("Password is required");
-        }
+    public ResponseEntity<Map<String, String>> login(
+            @RequestParam("email") String email,
+            @RequestParam("password") String password) {
         
         try {
             // Authenticate the user
@@ -61,13 +67,17 @@ public class AuthController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            throw new RuntimeException("Invalid credentials: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid email or password");
+            return ResponseEntity.status(401).body(error);
         }
     }
     
+    /**
+     * Register endpoint (unchanged)
+     */
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity.ok(userService.createUser(user));
     }
 }
