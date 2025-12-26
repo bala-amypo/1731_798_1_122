@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequest; // Add this import
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
@@ -26,10 +25,26 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
     
+    /**
+     * Authenticate user and get JWT token
+     * 
+     * Example request body:
+     * {
+     *   "email": "user@example.com",
+     *   "password": "password123"
+     * }
+     * 
+     * Example response:
+     * {
+     *   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     *   "role": "ADMIN",
+     *   "email": "user@example.com"
+     * }
+     */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) { // Change this line
-        String email = loginRequest.getEmail(); // Change this
-        String password = loginRequest.getPassword(); // Change this
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
         
         try {
             Authentication auth = authenticationManager.authenticate(
