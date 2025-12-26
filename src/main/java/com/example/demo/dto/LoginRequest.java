@@ -3,9 +3,7 @@ package com.example.demo.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class RegisterRequest {
-    
-    private Long id = 0L;
+public class LoginRequest {
     
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
@@ -13,28 +11,16 @@ public class RegisterRequest {
     
     @NotBlank(message = "Password is required")
     private String password;
-    
-    private String role = "USER";
 
     // Constructors
-    public RegisterRequest() {}
+    public LoginRequest() {}
 
-    public RegisterRequest(Long id, String email, String password, String role) {
-        this.id = id;
+    public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
-        this.role = role;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -49,13 +35,5 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 }
