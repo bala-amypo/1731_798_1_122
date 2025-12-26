@@ -1,57 +1,31 @@
-// Update AuthController.java
-package com.example.demo.controller;
-
-import com.example.demo.model.User;
-import com.example.demo.security.JwtUtil;
-import com.example.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthController {
-    
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private JwtUtil jwtUtil;
-    
+
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    @Operation(summary = "User login", description = "Authenticate user and return JWT token")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Login successful"),
+        @ApiResponse(responseCode = "400", description = "Invalid input", 
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody AuthRequest authRequest,
+            HttpServletRequest request) {
         
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-            );
-            
-            User user = userService.getUserByEmail(email);
-            String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
-            
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            response.put("role", user.getRole());
-            response.put("email", user.getEmail());
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid credentials");
-        }
+        AuthResponse response = authService.authenticate(authRequest);
+        return ResponseEntity.ok(response);
     }
-    
+
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    @Operation(summary = "User registration", description = "Register a new user account")
+    public ResponseEntity<RegisterResponse> register(
+            @Valid @RequestBody RegisterRequest registerRequest) {
+        
+        RegisterResponse response = authService.register(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
