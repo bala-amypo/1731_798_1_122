@@ -1,4 +1,3 @@
-// Update AuthController.java
 package com.example.demo.controller;
 
 import com.example.demo.model.User;
@@ -55,4 +54,3 @@ public class AuthController {
         return ResponseEntity.ok(userService.createUser(user));
     }
 }
-
