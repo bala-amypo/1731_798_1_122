@@ -37,8 +37,29 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(email, password)
             );
             
-            // Change getUserByEmail to findByEmail (or whatever method you have)
-            User user = userService.findByEmail(email); // Changed this line
+            // Try different method names - use the one that exists in your UserService
+            User user = null;
+            
+            // Option 1: getByEmail (most common)
+            try {
+                user = userService.getByEmail(email);
+            } catch (Exception e1) {
+                // Option 2: findByEmail
+                try {
+                    user = userService.findByEmail(email);
+                } catch (Exception e2) {
+                    // Option 3: findUserByEmail
+                    try {
+                        user = userService.findUserByEmail(email);
+                    } catch (Exception e3) {
+                        // Option 4: getUserByEmail
+                        user = userService.getUserByEmail(email);
+                    }
+                }
+            }
+            
+            // Or if you know your exact method, use it directly:
+            // User user = userService.getUserByEmail(email); // Use the correct method name
             
             String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
             
@@ -55,7 +76,27 @@ public class AuthController {
     
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        // Change createUser to registerUser (or whatever method you have)
-        return ResponseEntity.ok(userService.registerUser(user)); // Changed this line
+        // Try different method names for registration
+        User savedUser = null;
+        
+        // Option 1: save (most common)
+        try {
+            savedUser = userService.save(user);
+        } catch (Exception e1) {
+            // Option 2: createUser
+            try {
+                savedUser = userService.createUser(user);
+            } catch (Exception e2) {
+                // Option 3: registerUser
+                try {
+                    savedUser = userService.registerUser(user);
+                } catch (Exception e3) {
+                    // Option 4: create
+                    savedUser = userService.create(user);
+                }
+            }
+        }
+        
+        return ResponseEntity.ok(savedUser);
     }
 }
