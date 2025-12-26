@@ -37,7 +37,9 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(email, password)
             );
             
-            User user = userService.getUserByEmail(email);
+            // Change getUserByEmail to findByEmail (or whatever method you have)
+            User user = userService.findByEmail(email); // Changed this line
+            
             String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
             
             Map<String, String> response = new HashMap<>();
@@ -53,6 +55,7 @@ public class AuthController {
     
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+        // Change createUser to registerUser (or whatever method you have)
+        return ResponseEntity.ok(userService.registerUser(user)); // Changed this line
     }
 }
