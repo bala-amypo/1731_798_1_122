@@ -3,6 +3,13 @@ package com.example.demo.controller;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Authentication API for user registration and login")
 public class AuthController {
     
     @Autowired
@@ -28,8 +36,20 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
     
+    @Operation(summary = "User login", description = "Authenticate user and return JWT token")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Login successful",
+                     content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                     content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                     content = @Content(schema = @Schema(implementation = Map.class)))
+    })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<?> login(
+            @Parameter(description = "Login credentials", required = true)
+            @RequestBody Map<String, String> loginRequest) {
+        
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
         
@@ -66,8 +86,20 @@ public class AuthController {
         }
     }
     
+    @Operation(summary = "User registration", description = "Register a new user account")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Registration successful",
+                     content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request (e.g., email already exists)",
+                     content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                     content = @Content(schema = @Schema(implementation = Map.class)))
+    })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(
+            @Parameter(description = "User details for registration", required = true)
+            @RequestBody User user) {
+        
         try {
             // Don't use client-provided ID
             user.setId(null);
@@ -83,6 +115,7 @@ public class AuthController {
             response.put("message", "Registration successful");
             
             return ResponseEntity.ok(response);
+            
         } catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Registration failed: " + e.getMessage());
