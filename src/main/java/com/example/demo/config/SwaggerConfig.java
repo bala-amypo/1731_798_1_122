@@ -39,7 +39,7 @@ public class SwaggerConfig {
                 .version("1.0")
                 .description("API for managing local events, subscriptions, and broadcasts"))
             .servers(List.of(
-                new Server().url("https://9256.pro604cr.amypo.ai/")
+                new Server().url("https://9270.pro604cr.amypo.ai/")
             ))
             .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
             .components(new io.swagger.v3.oas.models.Components()
@@ -54,26 +54,3 @@ public class SwaggerConfig {
 
 
 
-
-
-
-// package com.example.demo.config;
-
-// import io.swagger.v3.oas.models.OpenAPI;
-// import io.swagger.v3.oas.models.servers.Server;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-// import java.util.List;
-
-// @Configuration
-// public class SwaggerConfig {
-
-//     @Bean
-//     public OpenAPI customOpenAPI() {
-//         return new OpenAPI()
-//                 // You need to change the port as per your server
-//                 .servers(List.of(
-//                         new Server().url("https://9256.pro604cr.amypo.ai/")
-//                 ));
-//         }
-// }
