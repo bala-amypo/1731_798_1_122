@@ -35,7 +35,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title("Digital Local Event Broadcasting API")
+                .title("nothing to say!!!")
                 .version("1.0")
                 .description("API for managing local events, subscriptions, and broadcasts"))
             .servers(List.of(
