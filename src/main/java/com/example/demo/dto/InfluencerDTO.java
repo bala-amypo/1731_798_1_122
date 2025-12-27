@@ -3,7 +3,7 @@ package com.example.demo.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-public class InfluencerResponseDTO {
+public class InfluencerDTO {
     @Schema(description = "Influencer ID", example = "1")
     private Long id;
     
