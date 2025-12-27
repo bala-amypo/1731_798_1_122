@@ -1,73 +1,28 @@
-// package com.example.demo.dto;
+package com.example.demo.dto;
 
-// import java.time.LocalDateTime;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 
-// public class InfluencerDTO {
-//     private Long id;
-//     private String name;
-//     private String socialHandle;
-//     private String email;
-//     private Boolean active;
-//     private LocalDateTime createdAt;
-
-//     // Constructors
-//     public InfluencerDTO() {}
-
-//     public InfluencerDTO(Long id, String name, String socialHandle, String email, Boolean active, LocalDateTime createdAt) {
-//         this.id = id;
-//         this.name = name;
-//         this.socialHandle = socialHandle;
-//         this.email = email;
-//         this.active = active;
-//         this.createdAt = createdAt;
-//     }
-
-//     // Getters and Setters
-//     public Long getId() {
-//         return id;
-//     }
-
-//     public void setId(Long id) {
-//         this.id = id;
-//     }
-
-//     public String getName() {
-//         return name;
-//     }
-
-//     public void setName(String name) {
-//         this.name = name;
-//     }
-
-//     public String getSocialHandle() {
-//         return socialHandle;
-//     }
-
-//     public void setSocialHandle(String socialHandle) {
-//         this.socialHandle = socialHandle;
-//     }
-
-//     public String getEmail() {
-//         return email;
-//     }
-
-//     public void setEmail(String email) {
-//         this.email = email;
-//     }
-
-//     public Boolean getActive() {
-//         return active;
-//     }
-
-//     public void setActive(Boolean active) {
-//         this.active = active;
-//     }
-
-//     public LocalDateTime getCreatedAt() {
-//         return createdAt;
-//     }
-
-//     public void setCreatedAt(LocalDateTime createdAt) {
-//         this.createdAt = createdAt;
-//     }
-// }
+public class InfluencerResponseDTO {
+    @Schema(description = "Influencer ID", example = "1")
+    private Long id;
+    
+    @Schema(description = "Influencer name", example = "John Doe")
+    private String name;
+    
+    @Schema(description = "Social media handle", example = "@johndoe")
+    private String socialHandle;
+    
+    @Schema(description = "Whether the influencer is active", example = "true")
+    private Boolean active;
+    
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getSocialHandle() { return socialHandle; }
+    public void setSocialHandle(String socialHandle) { this.socialHandle = socialHandle; }
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
+}
