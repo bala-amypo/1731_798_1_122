@@ -13,14 +13,14 @@ public class InfluencerService {
     private InfluencerRepository influencerRepository;
     
     public Influencer createInfluencer(Influencer influencer) {
-        // Check for duplicate social handle - using direct object
+        // Check for duplicate social handle
         Influencer existing = influencerRepository.findBySocialHandle(influencer.getSocialHandle());
         if (existing != null) {
             throw new RuntimeException("Duplicate social handle: " + influencer.getSocialHandle());
         }
         
-        // Set default active status if not provided
-        if (influencer.isActive() == null) {
+        // Set default active status if not provided - use getter that returns Boolean
+        if (influencer.getActive() == null) {  // Use getActive() not isActive()
             influencer.setActive(true);
         }
         
@@ -53,8 +53,9 @@ public class InfluencerService {
             influencer.setSocialHandle(influencerDetails.getSocialHandle());
         }
         
-        if (influencerDetails.isActive() != null) {
-            influencer.setActive(influencerDetails.isActive());
+        // Check if active status is provided - use getActive() method
+        if (influencerDetails.getActive() != null) {  // Use getActive() not isActive()
+            influencer.setActive(influencerDetails.getActive());
         }
         
         return influencerRepository.save(influencer);
